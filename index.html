@@ -28,7 +28,7 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
 .odds{display:grid;gap:9px}.tier{display:grid;grid-template-columns:12px 1fr auto;gap:11px;align-items:center;padding:12px;background:#11130f;border:1px solid #383d30;border-radius:9px}.dot{width:12px;height:12px;border-radius:3px;background:var(--tier)}.tier strong{display:block;font-size:14px}.tier small{color:#aeb3a2;font-size:12px}.percent{font:11px 'Press Start 2P',monospace;color:var(--tier)}
 .rule{font-size:12px;color:#b9bead;line-height:1.7;margin:18px 0 0;padding:12px;border-left:3px solid var(--purple);background:#8b5cf61a}
 .tabs{display:flex;gap:8px;margin:26px 0 14px}.tab{padding:10px 14px;background:#24271f;color:#c9cdbd;border:1px solid #4c5240;border-radius:8px}.tab.active{color:#171717;background:var(--yellow);border-color:var(--yellow)}
-.view{display:none}.view.active{display:block}.inventory-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}.collectible{padding:16px;border:1px solid #555b45;border-radius:12px;background:#191b17;text-align:center;min-height:150px}.collectible .emoji{font-size:35px;display:block;margin-bottom:12px}.collectible h3{font:9px/1.8 'Press Start 2P',monospace;margin:0 0 8px;color:var(--yellow)}.collectible p{font-size:12px;color:#bdc2b1;margin:0}.collectible.locked{opacity:.45;filter:grayscale(1)}
+.view{display:none}.view.active{display:block}.inventory-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}.collectible{padding:16px;border:1px solid #555b45;border-radius:12px;background:#191b17;text-align:center;min-height:150px}.collectible .emoji{font-size:35px;display:block;margin-bottom:12px}.badge-emblem{width:78px;height:78px;margin:0 auto 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;clip-path:polygon(50% 0%,88% 13%,100% 48%,82% 82%,50% 100%,18% 82%,0% 48%,12% 13%);box-shadow:0 4px 0 #0008;font-size:28px;position:relative}.badge-emblem small{font:8px 'Press Start 2P',monospace;letter-spacing:.3px}.tier-gold{background:linear-gradient(135deg,#fff0a1,#c58a13 42%,#ffe77b 65%,#81500b);color:#251900;border:2px solid #ffe9a0}.tier-silver{background:linear-gradient(135deg,#fff,#8c9aa9 40%,#e4eaf0 65%,#697785);color:#18202a;border:2px solid #f4f7fa}.tier-wood{background:repeating-linear-gradient(12deg,#d1a16d 0 7px,#9a6335 8px 11px,#c18a53 12px 17px);color:#271709;border:2px solid #e0b27a}.collectible h3{font:9px/1.8 'Press Start 2P',monospace;margin:0 0 8px;color:var(--yellow)}.collectible p{font-size:12px;color:#bdc2b1;margin:0}.collectible.locked{opacity:.45;filter:grayscale(1)}
 .status{font-size:12px;color:#c5c9ba;margin-top:12px;line-height:1.7}.footer{text-align:center;color:#7e8574;font-size:12px;margin-top:30px}.footer b{color:var(--orange)}
 .modal{position:fixed;z-index:10;inset:0;background:#070806df;display:none;place-items:center;padding:20px}.modal.show{display:grid}.result-card{width:min(440px,100%);text-align:center;background:#20231c;border:3px solid var(--yellow);border-radius:18px;padding:30px;box-shadow:0 0 70px #ff790044}.result-card .burst{font-size:60px}.result-card .label{font:10px 'Press Start 2P',monospace;color:var(--green);margin:16px 0}.result-card h2{font:clamp(15px,3vw,21px)/1.8 'Press Start 2P',monospace;color:var(--yellow)}.result-card p{color:#c8cbbb;line-height:1.7}.result-card button{background:var(--orange);padding:13px 20px;border-radius:8px;margin-top:12px}
 @media(max-width:780px){header{align-items:flex-start;flex-direction:column}.layout{grid-template-columns:1fr}.hero p{font-size:15px}.panel-title{font-size:10px}.brand{font-size:13px}}
@@ -38,56 +38,91 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
 <body>
 <header><div class="brand">FROGINALS<span>SWAMP SPIN / COLLECTIBLES</span></div><nav><button class="navbtn active" data-view="spin">🎡 Spin</button><button class="navbtn" data-view="inventory">🎒 Inventory</button><button class="navbtn" data-view="collection">🗂 Collection</button></nav></header>
 <main>
-<section class="hero"><div class="eyebrow">/// RECRUIT REWARD PROTOCOL ///</div><h1>SWAMP SPIN</h1><p>One spin. One collectible. Welcome to the FROGINALS army.</p></section>
+<section class="hero"><div class="eyebrow">/// RECRUIT REWARD PROTOCOL ///</div><h1>SWAMP SPIN</h1><p>One spin. One recruitment badge. Choose your place in the FROGINALS army.</p></section>
 <section class="view active" id="spin">
 <div class="layout">
-<div class="panel"><h2 class="panel-title">YOUR LUCK IS LOADING...</h2><div class="wheel-wrap"><div class="pointer"></div><canvas id="wheel" width="700" height="700" aria-label="Prize wheel with six collectible rewards"></canvas></div><button class="spinbtn" id="spinBtn">▶ SPIN FOR YOUR REWARD</button><p class="note" id="spinNote">Prototype mode: this browser can claim one welcome spin.</p></div>
-<div class="panel"><h2 class="panel-title">DROP RATES</h2><div class="odds" id="odds"></div><p class="rule"><strong>PROTOTYPE NOTICE:</strong> This demo saves your spin in this browser only. It is not secure against resets or multiple browsers. Server-side validation is required before public launch or Discord integration.</p></div>
+<div class="panel"><h2 class="panel-title">YOUR BADGE IS LOADING...</h2><div class="wheel-wrap"><div class="pointer"></div><canvas id="wheel" width="700" height="700" aria-label="Prize wheel with Gold, Silver, and Wood FROGINALS badge tiers"></canvas></div><button class="spinbtn" id="spinBtn">▶ SPIN FOR YOUR BADGE</button><p class="note" id="spinNote">One welcome badge spin per browser (prototype).</p></div>
+<div class="panel"><h2 class="panel-title">BADGE DROP RATES</h2><div class="odds" id="odds"></div><p class="rule"><strong>PROTOTYPE NOTICE:</strong> This demo saves your spin in this browser only. It is not secure against resets or multiple browsers. Server-side validation is required before public launch or Discord integration.</p></div>
 </div>
 </section>
 <section class="view" id="inventory"><div class="panel"><h2 class="panel-title">YOUR SWAMP INVENTORY</h2><div id="inventoryGrid" class="inventory-grid"></div><p class="status" id="inventoryStatus"></p></div></section>
-<section class="view" id="collection"><div class="panel"><h2 class="panel-title">THE COLLECTIBLE INDEX</h2><div id="collectionGrid" class="inventory-grid"></div><p class="status">Collectibles shown here are cosmetic prototype rewards. No token, NFT, currency, or real-world value is issued.</p></div></section>
+<section class="view" id="collection"><div class="panel"><h2 class="panel-title">THE COLLECTIBLE INDEX</h2><div id="collectionGrid" class="inventory-grid"></div><p class="status">All 50 designs are cosmetic prototype badges: 12 Gold, 22 Silver, and 16 Wood. No NFT or on-chain asset is issued by this demo.</p></div></section>
 <div class="footer">BUILT FOR THE <b>FROGINALS</b> COMMUNITY · PROTOTYPE v0.1</div>
 </main>
-<div class="modal" id="resultModal" role="dialog" aria-modal="true" aria-labelledby="resultTitle"><div class="result-card"><div class="burst" id="resultEmoji">🐸</div><div class="label">REWARD UNLOCKED</div><h2 id="resultTitle">SWAMP RECRUIT BADGE</h2><p id="resultDesc"></p><button id="closeResult">ADD TO INVENTORY</button></div></div>
+<div class="modal" id="resultModal" role="dialog" aria-modal="true" aria-labelledby="resultTitle"><div class="result-card"><div class="burst" id="resultEmoji">🐸</div><div class="label">BADGE UNLOCKED</div><h2 id="resultTitle">SWAMP RECRUIT BADGE</h2><p id="resultDesc"></p><button id="closeResult">ADD TO ARMORY</button></div></div>
 <script>
-const rewards=[
- {id:'common',name:'Swamp Recruit Badge',rarity:'COMMON',odds:50,color:'#a5c86a',emoji:'🐸',desc:'Your first mark of service in the swamp.'},
- {id:'uncommon',name:'Froginal Sticker',rarity:'UNCOMMON',odds:25,color:'#54d6a0',emoji:'🐸',desc:'A fresh sticker for your growing collection.'},
- {id:'rare',name:'Army Patch Card',rarity:'RARE',odds:15,color:'#58b7ff',emoji:'🛡️',desc:'A field patch card for a rising recruit.'},
- {id:'epic',name:'Golden Helmet Card',rarity:'EPIC',odds:8,color:'#b68aff',emoji:'🪖',desc:'A gleaming helmet card. Swamp legends are made of this.'},
- {id:'legendary',name:'First Wave Trophy',rarity:'LEGENDARY',odds:2,color:'#ffd447',emoji:'🏆',desc:'An ultra-rare trophy reserved for the luckiest recruits.'}
+const tierConfig=[
+ {id:'gold',name:'GOLD BADGES',rarity:'GOLD TIER',odds:24,color:'#ffd447',emoji:'🏅',desc:'Prestige recruitment insignia in polished gold.'},
+ {id:'silver',name:'SILVER BADGES',rarity:'SILVER TIER',odds:44,color:'#cbd5e1',emoji:'🛡️',desc:'Tactical and technical silver recruitment insignia.'},
+ {id:'wood',name:'WOOD BADGES',rarity:'WOOD TIER',odds:32,color:'#b98250',emoji:'🪵',desc:'Rustic carved wood recruitment insignia.'}
 ];
+const badgeSets=[
+ {tier:'gold',items:[
+  ['Golden Froginal Recruit','🐸'],['Swamp General','🎖️'],['Golden Crown','👑'],['First Wave Legend','🌅'],
+  ['Golden Frog Skull','💀'],['Swamp Commander','⚔️'],['Golden Doge Ally','🐕'],['Crypto Swamp Elite','🪙'],
+  ['Legendary Helmet','🪖'],['Golden Trident','🔱'],['Royal Froginal Shield','🛡️'],['Eternal Swamp','🌿']
+ ]},
+ {tier:'silver',items:[
+  ['Silver Recruit','🐸'],['Swamp Scout','🧭'],['Froginal Soldier','🪖'],['Recon Specialist','🔭'],
+  ['Marsh Guardian','🛡️'],['Swamp Ranger','🌾'],['Signal Operator','📡'],['Crypto Navigator','🧭'],
+  ['Tactical Helmet','⛑️'],['Night Patrol','🌙'],['River Patrol','🌊'],['Mud Runner','👣'],
+  ['Iron Frog','⚙️'],['Swamp Engineer','🔧'],['Froginal Medic','✚'],['Recon Drone','🚁'],
+  ['Marsh Defender','🌿'],['Pixel Warrior','👾'],['Silver Coin Guard','🪙'],['Tactical Branch','🌱'],
+  ['Swamp Alliance','🤝'],['Silver Vanguard','⚔️']
+ ]},
+ {tier:'wood',items:[
+  ['First Swamp Recruit','🐸'],['Rookie Froginal','🐸'],['Mud Walker','👣'],['Swamp Explorer','🧭'],
+  ['Reed Keeper','🌾'],['Frog Foot Soldier','🛡️'],['Woodland Scout','🍃'],['Mud Boots','🥾'],
+  ['Camp Recruit','🔥'],['Swamp Trailblazer','➡️'],['Wooden Frog Shield','🛡️'],['Little Marsh Guardian','🌿'],
+  ['Swamp Builder','🪵'],['Rookie Patrol','👀'],['Froginal Footprint','🐾'],['The First Step','🌱']
+ ]}
+];
+const badges=badgeSets.flatMap(set=>set.items.map((item,index)=>{
+ const tier= tierConfig.find(t=>t.id===set.tier);
+ const number=String(index+1).padStart(2,'0');
+ const prefix=set.tier==='gold'?'G':set.tier==='silver'?'S':'W';
+ return {id:prefix+number,name:item[0],tier:set.tier,rarity:tier.rarity,color:tier.color,emoji:item[1],desc:item[0]+' — an official FROGINALS recruitment badge design.',odds:2};
+}));
+const STORAGE_KEY='froginals_badge_spin_v2';
+let isSpinning=false;
+const wheel=document.getElementById('wheel'),ctx=wheel.getContext('2d');
 const STORAGE_KEY='froginals_swamp_spin_v1';
 let isSpinning=false;
 const wheel=document.getElementById('wheel'),ctx=wheel.getContext('2d');
 function drawWheel(){
  const cx=350,cy=350,r=320;ctx.clearRect(0,0,700,700);
  let start=-Math.PI/2;
- rewards.forEach((item,i)=>{
+ tierConfig.forEach((item)=>{
    const end=start+Math.PI*2*item.odds/100;
    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,end);ctx.closePath();ctx.fillStyle=item.color;ctx.fill();ctx.strokeStyle='#171717';ctx.lineWidth=7;ctx.stroke();
-   const mid=(start+end)/2;ctx.save();ctx.translate(cx+Math.cos(mid)*r*.68,cy+Math.sin(mid)*r*.68);ctx.rotate(mid+Math.PI/2);
-   ctx.fillStyle='#171717';ctx.textAlign='center';ctx.font='bold 24px sans-serif';ctx.fillText(item.emoji,0,-8);ctx.font='bold 14px sans-serif';
-   const words=item.name.split(' ');let line='',lines=[];
-   words.forEach(word=>{if((line+' '+word).trim().length>15){lines.push(line);line=word}else line=(line+' '+word).trim()});if(line)lines.push(line);
-   lines.slice(0,3).forEach((t,j)=>ctx.fillText(t,0,18+j*17));ctx.restore();start=end;
+   const mid=(start+end)/2;ctx.save();ctx.translate(cx+Math.cos(mid)*r*.66,cy+Math.sin(mid)*r*.66);ctx.rotate(mid+Math.PI/2);
+   ctx.fillStyle='#171717';ctx.textAlign='center';ctx.font='bold 31px sans-serif';ctx.fillText(item.emoji,0,-12);ctx.font='bold 15px sans-serif';
+   const label=item.id==='gold'?'GOLD':item.id==='silver'?'SILVER':'WOOD';
+   ctx.fillText(label,0,17);ctx.fillText(item.odds+'%',0,37);ctx.restore();start=end;
  });
  ctx.beginPath();ctx.arc(cx,cy,66,0,Math.PI*2);ctx.fillStyle='#171717';ctx.fill();ctx.lineWidth=9;ctx.strokeStyle='#ffd447';ctx.stroke();ctx.fillStyle='#ff7900';ctx.font='bold 25px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('FROG',cx,cy-9);ctx.fillText('INALS',cx,cy+20);
 }
 function getState(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{used:false,inventory:[]}}catch(e){return {used:false,inventory:[]}}}
 function saveState(s){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(s))}catch(e){}}
-function chooseReward(){const n=Math.random()*100;let total=0;for(const item of rewards){total+=item.odds;if(n<total)return item}return rewards[0]}
-function renderOdds(){document.getElementById('odds').innerHTML=rewards.map(r=>'<div class="tier" style="--tier:'+r.color+'"><span class="dot"></span><div><strong>'+r.name+'</strong><small>'+r.rarity+'</small></div><span class="percent">'+r.odds+'%</span></div>').join('')}
-function card(r,locked=false){return '<article class="collectible '+(locked?'locked':'')+'"><span class="emoji">'+(locked?'🔒':r.emoji)+'</span><h3>'+(locked?'???':r.name)+'</h3><p>'+(locked?'Not collected':r.rarity+' · '+r.odds+'% drop rate')+'</p></article>'}
+function chooseReward(){
+ const n=Math.random()*100;let total=0;let chosenTier=tierConfig[tierConfig.length-1];
+ for(const tier of tierConfig){total+=tier.odds;if(n<total){chosenTier=tier;break}}
+ const pool=badges.filter(b=>b.tier===chosenTier.id);
+ return pool[Math.floor(Math.random()*pool.length)];
+}
+function renderOdds(){document.getElementById('odds').innerHTML=tierConfig.map(t=>'<div class="tier" style="--tier:'+t.color+'"><span class="dot"></span><div><strong>'+t.name+'</strong><small>'+ (t.id==='gold'?'12 designs':t.id==='silver'?'22 designs':'16 designs')+' · '+t.odds/ (t.id==='gold'?12:t.id==='silver'?22:16)+'% per badge</small></div><span class="percent">'+t.odds+'%</span></div>').join('')}
+function card(r,locked=false){
+ const tierClass='tier-'+r.tier;
+ return '<article class="collectible '+(locked?'locked':'')+'"><div class="badge-emblem '+tierClass+'"><span>'+(locked?'🔒':r.emoji)+'</span><small>'+r.id+'</small></div><h3>'+(locked?'???':r.name)+'</h3><p>'+(locked?'Not collected':r.rarity+' · 2% chance')+'</p></article>';
+}
 function render(){
  const s=getState(),btn=document.getElementById('spinBtn'),note=document.getElementById('spinNote');
- btn.disabled=s.used||isSpinning;btn.textContent=s.used?'✓ WELCOME SPIN CLAIMED':'▶ SPIN FOR YOUR REWARD';
- note.textContent=s.used?'Your welcome spin has been used in this browser.':'Prototype mode: this browser can claim one welcome spin.';
+ btn.disabled=s.used||isSpinning;btn.textContent=s.used?'✓ WELCOME BADGE CLAIMED':'▶ SPIN FOR YOUR BADGE';
+ note.textContent=s.used?'Your welcome badge spin has been used in this browser.':'One welcome spin. Every one of the 50 badge designs has an equal 2% chance.';
  const counts={};s.inventory.forEach(id=>counts[id]=(counts[id]||0)+1);
- document.getElementById('inventoryGrid').innerHTML=s.inventory.length? s.inventory.map(id=>{const r=rewards.find(x=>x.id===id);return card(r,false)}).join(''):'<p class="status">Your inventory is empty. Claim your welcome spin to unlock your first collectible.</p>';
- document.getElementById('inventoryStatus').textContent='Collectibles claimed: '+s.inventory.length+' · Duplicate rewards are allowed in this prototype.';
- document.getElementById('collectionGrid').innerHTML=rewards.map(r=>card(r,!counts[r.id])).join('');
+ document.getElementById('inventoryGrid').innerHTML=s.inventory.length?s.inventory.map(id=>{const r=badges.find(x=>x.id===id);return r?card(r,false):''}).join(''):'<p class="status">Your inventory is empty. Claim your welcome spin to unlock your first FROGINALS badge.</p>';
+ document.getElementById('inventoryStatus').textContent='Badges claimed: '+s.inventory.length+' · Duplicate badge rewards are allowed in this prototype.';
+ document.getElementById('collectionGrid').innerHTML=badges.map(r=>card(r,!counts[r.id])).join('');
 }
 function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.view===id));if(id==='inventory'||id==='collection')render()}
 document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
@@ -95,7 +130,7 @@ document.getElementById('spinBtn').addEventListener('click',()=>{
  const s=getState();if(s.used||isSpinning)return;
  isSpinning=true;render();
  // Demo-only selection. Production must select and persist the result on a trusted server.
- const reward=chooseReward();const start=rewards.slice(0,rewards.indexOf(reward)).reduce((sum,r)=>sum+r.odds,0);const targetPct=start+reward.odds/2;
+ const reward=chooseReward();const selectedTier=tierConfig.find(t=>t.id===reward.tier);const start=tierConfig.slice(0,tierConfig.indexOf(selectedTier)).reduce((sum,t)=>sum+t.odds,0);const targetPct=start+selectedTier.odds/2;
  const targetAngle=360-(targetPct*3.6);const current=(Number(wheel.dataset.rotation)||0)%360;const extra=360*6+((targetAngle-current+360)%360);const rotation=(Number(wheel.dataset.rotation)||0)+extra;
  wheel.style.transform='rotate('+rotation+'deg)';wheel.dataset.rotation=rotation;
  setTimeout(()=>{
