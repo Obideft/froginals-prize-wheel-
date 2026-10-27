@@ -13,7 +13,10 @@
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background-image:linear-gradient(45deg,#8ab64c 25%,transparent 25%),linear-gradient(-45deg,#8ab64c 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#8ab64c 75%),linear-gradient(-45deg,transparent 75%,#8ab64c 75%);background-size:36px 36px;background-position:0 0,0 18px,18px -18px,-18px 0}
 header{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px clamp(16px,4vw,56px);border-bottom:2px solid #ff790044;background:#11120fe8}
 .brand{font:clamp(12px,1.5vw,18px)/1.7 'Press Start 2P',monospace;color:var(--yellow);text-shadow:3px 3px #a34500}.brand span{display:block;font:700 11px 'Space Grotesk',sans-serif;letter-spacing:3px;color:#d2d6c5;text-shadow:none;margin-top:6px}
-nav{display:flex;gap:10px;flex-wrap:wrap}button{font:700 14px 'Space Grotesk',sans-serif;cursor:pointer;border:0;transition:transform .16s,filter .16s}button:hover{filter:brightness(1.1);transform:translateY(-2px)}button:focus-visible{outline:3px solid white;outline-offset:3px}
+nav{display:flex;gap:10px;flex-wrap:wrap}
+.wallet-profile{display:flex;align-items:center;gap:11px;max-width:100%;min-width:220px;padding:8px 12px;border:1px solid #ab9ff277;border-radius:14px;background:linear-gradient(135deg,#ab9ff222,#ffffff08);color:#eee9ff;font:700 11px 'Space Grotesk',sans-serif}
+.wallet-avatar{display:block;width:46px;height:46px;flex:0 0 46px;border-radius:12px;background:#ab9ff2;color:#211b3d;object-fit:cover;border:2px solid #ab9ff2}
+.wallet-copy{min-width:0;display:flex;flex-direction:column;gap:4px}.wallet-label{color:#ab9ff2;letter-spacing:1px;font-size:9px}.wallet-name{color:#fff;font-size:12px;font-weight:800;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wallet-address{color:#c9c2dc;overflow-wrap:anywhere;font-size:10px}button{font:700 14px 'Space Grotesk',sans-serif;cursor:pointer;border:0;transition:transform .16s,filter .16s}button:hover{filter:brightness(1.1);transform:translateY(-2px)}button:focus-visible{outline:3px solid white;outline-offset:3px}
 .navbtn{background:#292b24;border:1px solid #596048;color:#f8f5e9;padding:10px 14px;border-radius:8px}.navbtn.active{border-color:var(--yellow);color:var(--yellow)}
 main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clamp(22px,4vw,48px) 18px 70px}
 .hero{text-align:center;margin-bottom:26px}.eyebrow{color:var(--green);font:10px 'Press Start 2P',monospace;letter-spacing:1px;line-height:2.2}.hero h1{font:clamp(22px,4vw,42px)/1.45 'Press Start 2P',monospace;color:var(--orange);text-shadow:4px 4px #552600;margin:14px 0}.hero p{color:#d5d7c9;margin:0;font-size:17px}
@@ -50,7 +53,7 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
 </style>
 </head>
 <body>
-<header><div class="brand">FROGINALS<span>SWAMP SPIN / COLLECTIBLES</span></div><nav><button class="navbtn active" data-view="spin">🎡 Spin</button><button class="navbtn" data-view="inventory">🎒 Inventory</button><button class="navbtn" data-view="collection">🗂 Collection</button></nav></header>
+<header><div class="brand">FROGINALS<span>SWAMP SPIN / COLLECTIBLES</span></div><nav><button class="navbtn active" data-view="spin">🎡 Spin</button><button class="navbtn" data-view="inventory">🎒 Inventory</button><button class="navbtn" data-view="collection">🗂 Collection</button></nav><div class="wallet-profile" id="walletProfile" aria-live="polite"><img class="wallet-avatar" id="walletAvatar" src="https://raw.githubusercontent.com/Obideft/froginals/main/images/Log01.png" alt="FROGINALS profile avatar"><span class="wallet-copy"><span class="wallet-label">FROGINAL HOLDER · PHANTOM</span><span class="wallet-name" id="walletName">Checking your NFT…</span><span class="wallet-address" id="walletAddress">Checking wallet connection…</span></span></div></header>
 <main>
 <section class="hero"><div class="eyebrow">/// RECRUIT REWARD PROTOCOL ///</div><h1>SWAMP SPIN</h1><p>One spin. One recruitment badge. Choose your place in the FROGINALS army.</p></section>
 <section class="view active" id="spin">
@@ -77,6 +80,33 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
 </main>
 <div class="modal" id="resultModal" role="dialog" aria-modal="true" aria-labelledby="resultTitle"><div class="result-card"><div class="burst" id="resultEmoji">🐸</div><div class="label">BADGE UNLOCKED</div><h2 id="resultTitle">SWAMP RECRUIT BADGE</h2><p id="resultDesc"></p><button id="closeResult">ADD TO ARMORY</button></div></div>
 <script>
+(function(){
+ const address=document.getElementById('walletAddress'),name=document.getElementById('walletName'),avatar=document.getElementById('walletAvatar');
+ const fallback='https://raw.githubusercontent.com/Obideft/froginals/main/images/Log01.png';
+ let activeWallet='',lookupWallet='';
+ function shortWallet(key){const s=String(key||'');return s.length>18?s.slice(0,6)+'…'+s.slice(-6):s}
+ function showDisconnected(message){name.textContent='FROGINAL PROFILE';address.textContent=message;avatar.src=fallback;avatar.alt='FROGINALS logo'}
+ async function loadHolderProfile(wallet){
+  if(!wallet||lookupWallet===wallet)return;
+  lookupWallet=wallet;activeWallet=wallet;name.textContent='VERIFYING FROGINAL NFT…';address.textContent=shortWallet(wallet);
+  try{
+   const response=await fetch('https://froginals-nu.vercel.app/api/verify-swamp-spin-eligibility',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({wallet_address:wallet}),cache:'no-store'});
+   const data=await response.json();if(activeWallet!==wallet)return;
+   if(!response.ok||data.success!==true)throw new Error(data.error||'Profile lookup unavailable');
+   if(data.eligible!==true){name.textContent='FROGINAL DOGS NOT FOUND';address.textContent=shortWallet(wallet);avatar.src=fallback;avatar.alt='FROGINALS logo';return}
+   name.textContent=data.nft_name||'FROGINAL DOGS HOLDER';address.textContent=shortWallet(wallet);avatar.src=data.nft_image_url||fallback;avatar.alt=(data.nft_name||'FROGINAL DOGS NFT')+' profile picture';
+   avatar.onerror=()=>{avatar.onerror=null;avatar.src=fallback;avatar.alt='FROGINALS logo'};
+  }catch(error){if(activeWallet!==wallet)return;name.textContent='FROGINAL PROFILE';address.textContent=shortWallet(wallet)+' · NFT lookup unavailable';avatar.src=fallback;avatar.alt='FROGINALS logo';console.warn('FROGINAL profile lookup failed:',error.message)}
+ }
+ const provider=window.phantom?.solana||window.solana;
+ if(!provider){showDisconnected('Open Phantom to connect');return}
+ if(provider.publicKey)loadHolderProfile(provider.publicKey.toString());else showDisconnected('Connect Phantom to load your NFT');
+ provider.on?.('connect',key=>loadHolderProfile(key?.toString?.()||provider.publicKey?.toString()));
+ provider.on?.('accountChanged',key=>{if(key)loadHolderProfile(key.toString());else{activeWallet='';lookupWallet='';showDisconnected('Wallet disconnected')}});
+ provider.on?.('disconnect',()=>{activeWallet='';lookupWallet='';showDisconnected('Wallet disconnected')});
+})();
+</script>
+
 const tierConfig=[
  {id:'gold',name:'GOLD BADGES',rarity:'GOLD TIER',odds:24,color:'#ffd447',emoji:'🏅',desc:'Prestige recruitment insignia in polished gold.'},
  {id:'silver',name:'SILVER BADGES',rarity:'SILVER TIER',odds:44,color:'#cbd5e1',emoji:'🛡️',desc:'Tactical and technical silver recruitment insignia.'},
