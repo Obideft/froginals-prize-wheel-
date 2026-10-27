@@ -13,7 +13,11 @@
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background-image:linear-gradient(45deg,#8ab64c 25%,transparent 25%),linear-gradient(-45deg,#8ab64c 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#8ab64c 75%),linear-gradient(-45deg,transparent 75%,#8ab64c 75%);background-size:36px 36px;background-position:0 0,0 18px,18px -18px,-18px 0}
 header{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px clamp(16px,4vw,56px);border-bottom:2px solid #ff790044;background:#11120fe8}
 .brand{font:clamp(12px,1.5vw,18px)/1.7 'Press Start 2P',monospace;color:var(--yellow);text-shadow:3px 3px #a34500}.brand span{display:block;font:700 11px 'Space Grotesk',sans-serif;letter-spacing:3px;color:#d2d6c5;text-shadow:none;margin-top:6px}
-nav{display:flex;gap:10px;flex-wrap:wrap}button{font:700 14px 'Space Grotesk',sans-serif;cursor:pointer;border:0;transition:transform .16s,filter .16s}button:hover{filter:brightness(1.1);transform:translateY(-2px)}button:focus-visible{outline:3px solid white;outline-offset:3px}
+nav{display:flex;gap:10px;flex-wrap:wrap}
+.wallet-profile{display:flex;align-items:center;gap:10px;max-width:100%;padding:8px 12px;border:1px solid #ab9ff277;border-radius:14px;background:#ab9ff21a;color:#eee9ff;font:700 11px 'Space Grotesk',sans-serif}
+.wallet-avatar{display:grid;place-items:center;width:32px;height:32px;flex:0 0 32px;border-radius:10px;background:#ab9ff2;color:#211b3d;font-size:17px}
+.wallet-copy{min-width:0;display:flex;flex-direction:column;gap:4px}.wallet-label{color:#ab9ff2;letter-spacing:1px;font-size:9px}.wallet-address{color:#fff;overflow-wrap:anywhere;font-size:11px}
+@media(max-width:760px){header{flex-wrap:wrap}.wallet-profile{order:3;width:100%;justify-content:flex-start}nav{width:100%}}button{font:700 14px 'Space Grotesk',sans-serif;cursor:pointer;border:0;transition:transform .16s,filter .16s}button:hover{filter:brightness(1.1);transform:translateY(-2px)}button:focus-visible{outline:3px solid white;outline-offset:3px}
 .navbtn{background:#292b24;border:1px solid #596048;color:#f8f5e9;padding:10px 14px;border-radius:8px}.navbtn.active{border-color:var(--yellow);color:var(--yellow)}
 main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clamp(22px,4vw,48px) 18px 70px}
 .hero{text-align:center;margin-bottom:26px}.eyebrow{color:var(--green);font:10px 'Press Start 2P',monospace;letter-spacing:1px;line-height:2.2}.hero h1{font:clamp(22px,4vw,42px)/1.45 'Press Start 2P',monospace;color:var(--orange);text-shadow:4px 4px #552600;margin:14px 0}.hero p{color:#d5d7c9;margin:0;font-size:17px}
@@ -50,7 +54,7 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
 </style>
 </head>
 <body>
-<header><div class="brand">FROGINALS<span>SWAMP SPIN / COLLECTIBLES</span></div><nav><button class="navbtn active" data-view="spin">🎡 Spin</button><button class="navbtn" data-view="inventory">🎒 Inventory</button><button class="navbtn" data-view="collection">🗂 Collection</button></nav></header>
+<header><div class="brand">FROGINALS<span>SWAMP SPIN / COLLECTIBLES</span></div><nav><button class="navbtn active" data-view="spin">🎡 Spin</button><button class="navbtn" data-view="inventory">🎒 Inventory</button><button class="navbtn" data-view="collection">🗂 Collection</button></nav><div class="wallet-profile" id="walletProfile" aria-live="polite"><span class="wallet-avatar">👻</span><span class="wallet-copy"><span class="wallet-label">PHANTOM WALLET</span><span class="wallet-address" id="walletAddress">Checking connection…</span></span></div></header>
 <main>
 <section class="hero"><div class="eyebrow">/// RECRUIT REWARD PROTOCOL ///</div><h1>SWAMP SPIN</h1><p>One spin. One recruitment badge. Choose your place in the FROGINALS army.</p></section>
 <section class="view active" id="spin">
@@ -77,6 +81,29 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
 </main>
 <div class="modal" id="resultModal" role="dialog" aria-modal="true" aria-labelledby="resultTitle"><div class="result-card"><div class="burst" id="resultEmoji">🐸</div><div class="label">BADGE UNLOCKED</div><h2 id="resultTitle">SWAMP RECRUIT BADGE</h2><p id="resultDesc"></p><button id="closeResult">ADD TO ARMORY</button></div></div>
 <script>
+(function(){
+ const profile=document.getElementById('walletProfile');
+ const address=document.getElementById('walletAddress');
+ function showWallet(key){
+  if(!key){address.textContent='Wallet not connected';return}
+  const full=String(key);
+  address.textContent=full.length>18?full.slice(0,6)+'…'+full.slice(-6):full;
+  address.title=full;
+ }
+ const provider=window.phantom&&window.phantom.solana;
+ if(provider){
+  if(provider.publicKey) showWallet(provider.publicKey.toString());
+  else if(provider.isConnected) showWallet(provider.publicKey?.toString());
+  else address.textContent='Connect Phantom to identify wallet';
+  provider.on?.('connect',key=>showWallet(key?.toString?.()||provider.publicKey?.toString()));
+  provider.on?.('accountChanged',key=>showWallet(key?.toString?.()));
+  provider.on?.('disconnect',()=>{address.textContent='Wallet disconnected'});
+ }else{
+  address.textContent='Phantom not detected';
+ }
+})();
+</script>
+
 const tierConfig=[
  {id:'gold',name:'GOLD BADGES',rarity:'GOLD TIER',odds:24,color:'#ffd447',emoji:'🏅',desc:'Prestige recruitment insignia in polished gold.'},
  {id:'silver',name:'SILVER BADGES',rarity:'SILVER TIER',odds:44,color:'#cbd5e1',emoji:'🛡️',desc:'Tactical and technical silver recruitment insignia.'},
