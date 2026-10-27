@@ -173,7 +173,8 @@ const GM_CONFIG = {
   // This key is intended for browser use. Never put a gm_live_ key here.
   apiKey: "PASTE_GM_PUB_KEY_HERE",
   collectionId: "rdzucb",
-  mintUrl: "https://gravemint.io/mint/rdzucb"
+  mintUrl: "https://gravemint.io/mint/rdzucb",
+  holderEligibilityUrl: "https://froginals-nu.vercel.app/api/verify-swamp-spin-eligibility"
 };
 const gmButton = document.getElementById("gmMintBtn");
 const gmDropButton = document.getElementById("gmDropBtn");
@@ -206,7 +207,23 @@ gmButton.addEventListener("click", async () => {
     const walletAddress = connected?.publicKey?.toString?.() || provider.publicKey?.toString?.();
     if (!walletAddress) throw new Error("Wallet connection did not return a public address.");
 
-    gmMessage("Checking the official drop and its supported mint flow…");
+    gmMessage("Verifying FROGINAL DOGS holder eligibility…");
+    const holderResponse = await fetch(GM_CONFIG.holderEligibilityUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({ wallet_address: walletAddress }),
+      cache: "no-store"
+    });
+    const holderCheck = await holderResponse.json().catch(() => ({}));
+    if (!holderResponse.ok || holderCheck.success !== true) {
+      throw new Error(holderCheck.error || "The FROGINAL DOGS holder verification service is unavailable. No mint was submitted.");
+    }
+    if (holderCheck.eligible !== true) {
+      gmMessage("This wallet does not currently qualify: hold a verified FROGINAL DOGS NFT to mint a recruitment badge. No transaction was submitted.", "error");
+      return;
+    }
+
+    gmMessage("FROGINAL DOGS ownership confirmed. Checking the official drop and its supported mint flow…");
     const drop = await gm.v1.collection(GM_CONFIG.collectionId);
     const mintUrl = drop?.capabilities?.mintUrl || GM_CONFIG.mintUrl;
     if (drop?.capabilities?.supportedBySurface !== true) {
