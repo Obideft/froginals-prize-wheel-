@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171717">
+<meta name="description" content="FROGINALS SWAMP SPIN — a collectible prize wheel prototype.">
+<title>FROGINALS SWAMP SPIN</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root{--orange:#ff7900;--yellow:#ffd447;--ink:#171717;--green:#9bd45c;--purple:#9d67ff;--panel:#22231f;--muted:#b8b8a9}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 0%,#35432a 0,#171914 50%,#10110f 100%);color:#f8f5e9;font-family:'Space Grotesk',sans-serif;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background-image:linear-gradient(45deg,#8ab64c 25%,transparent 25%),linear-gradient(-45deg,#8ab64c 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#8ab64c 75%),linear-gradient(-45deg,transparent 75%,#8ab64c 75%);background-size:36px 36px;background-position:0 0,0 18px,18px -18px,-18px 0}
+header{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px clamp(16px,4vw,56px);border-bottom:2px solid #ff790044;background:#11120fe8}
+.brand{font:clamp(12px,1.5vw,18px)/1.7 'Press Start 2P',monospace;color:var(--yellow);text-shadow:3px 3px #a34500}.brand span{display:block;font:700 11px 'Space Grotesk',sans-serif;letter-spacing:3px;color:#d2d6c5;text-shadow:none;margin-top:6px}
+nav{display:flex;gap:10px;flex-wrap:wrap}button{font:700 14px 'Space Grotesk',sans-serif;cursor:pointer;border:0;transition:transform .16s,filter .16s}button:hover{filter:brightness(1.1);transform:translateY(-2px)}button:focus-visible{outline:3px solid white;outline-offset:3px}
+.navbtn{background:#292b24;border:1px solid #596048;color:#f8f5e9;padding:10px 14px;border-radius:8px}.navbtn.active{border-color:var(--yellow);color:var(--yellow)}
+main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clamp(22px,4vw,48px) 18px 70px}
+.hero{text-align:center;margin-bottom:26px}.eyebrow{color:var(--green);font:10px 'Press Start 2P',monospace;letter-spacing:1px;line-height:2.2}.hero h1{font:clamp(22px,4vw,42px)/1.45 'Press Start 2P',monospace;color:var(--orange);text-shadow:4px 4px #552600;margin:14px 0}.hero p{color:#d5d7c9;margin:0;font-size:17px}
+.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:22px;align-items:stretch}
+.panel{background:linear-gradient(145deg,#292c24f5,#191b17f5);border:2px solid #555b45;border-radius:16px;padding:clamp(16px,3vw,28px);box-shadow:0 14px 45px #0005}
+.panel-title{font:12px/1.8 'Press Start 2P',monospace;color:var(--yellow);margin:0 0 20px}
+.wheel-wrap{position:relative;width:min(100%,480px);aspect-ratio:1;margin:0 auto 18px;display:grid;place-items:center}
+#wheel{width:100%;height:100%;filter:drop-shadow(0 12px 18px #0008);transition:transform 5.3s cubic-bezier(.12,.72,.08,1);transform:rotate(0deg)}
+.pointer{position:absolute;top:-7px;left:50%;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:0;border-bottom:34px solid var(--yellow);filter:drop-shadow(0 3px 0 #5d3a00)}
+.spinbtn{display:block;width:100%;max-width:360px;margin:0 auto;background:var(--orange);color:#171717;border:3px solid var(--yellow);padding:18px 14px;border-radius:10px;font:14px 'Press Start 2P',monospace;line-height:1.8;box-shadow:0 6px #9e4200}.spinbtn:active{transform:translateY(4px);box-shadow:0 2px #9e4200}.spinbtn:disabled{opacity:.5;cursor:not-allowed;filter:grayscale(.5);transform:none}
+.note{text-align:center;color:var(--muted);font-size:12px;margin:14px 0 0;line-height:1.6}
+.odds{display:grid;gap:9px}.tier{display:grid;grid-template-columns:12px 1fr auto;gap:11px;align-items:center;padding:12px;background:#11130f;border:1px solid #383d30;border-radius:9px}.dot{width:12px;height:12px;border-radius:3px;background:var(--tier)}.tier strong{display:block;font-size:14px}.tier small{color:#aeb3a2;font-size:12px}.percent{font:11px 'Press Start 2P',monospace;color:var(--tier)}
+.rule{font-size:12px;color:#b9bead;line-height:1.7;margin:18px 0 0;padding:12px;border-left:3px solid var(--purple);background:#8b5cf61a}
+.tabs{display:flex;gap:8px;margin:26px 0 14px}.tab{padding:10px 14px;background:#24271f;color:#c9cdbd;border:1px solid #4c5240;border-radius:8px}.tab.active{color:#171717;background:var(--yellow);border-color:var(--yellow)}
+.view{display:none}.view.active{display:block}.inventory-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}.collectible{padding:16px;border:1px solid #555b45;border-radius:12px;background:#191b17;text-align:center;min-height:150px}.collectible .emoji{font-size:35px;display:block;margin-bottom:12px}.badge-emblem{width:78px;height:78px;margin:0 auto 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;clip-path:polygon(50% 0%,88% 13%,100% 48%,82% 82%,50% 100%,18% 82%,0% 48%,12% 13%);box-shadow:0 4px 0 #0008;font-size:28px;position:relative}.badge-emblem small{font:8px 'Press Start 2P',monospace;letter-spacing:.3px}.tier-gold{background:linear-gradient(135deg,#fff0a1,#c58a13 42%,#ffe77b 65%,#81500b);color:#251900;border:2px solid #ffe9a0}.tier-silver{background:linear-gradient(135deg,#fff,#8c9aa9 40%,#e4eaf0 65%,#697785);color:#18202a;border:2px solid #f4f7fa}.tier-wood{background:repeating-linear-gradient(12deg,#d1a16d 0 7px,#9a6335 8px 11px,#c18a53 12px 17px);color:#271709;border:2px solid #e0b27a}.collectible h3{font:9px/1.8 'Press Start 2P',monospace;margin:0 0 8px;color:var(--yellow)}.collectible p{font-size:12px;color:#bdc2b1;margin:0}.collectible.locked{opacity:.45;filter:grayscale(1)}
+.status{font-size:12px;color:#c5c9ba;margin-top:12px;line-height:1.7}.footer{text-align:center;color:#7e8574;font-size:12px;margin-top:30px}.footer b{color:var(--orange)}
+.modal{position:fixed;z-index:10;inset:0;background:#070806df;display:none;place-items:center;padding:20px}.modal.show{display:grid}.result-card{width:min(440px,100%);text-align:center;background:#20231c;border:3px solid var(--yellow);border-radius:18px;padding:30px;box-shadow:0 0 70px #ff790044}.result-card .burst{font-size:60px}.result-card .label{font:10px 'Press Start 2P',monospace;color:var(--green);margin:16px 0}.result-card h2{font:clamp(15px,3vw,21px)/1.8 'Press Start 2P',monospace;color:var(--yellow)}.result-card p{color:#c8cbbb;line-height:1.7}.result-card button{background:var(--orange);padding:13px 20px;border-radius:8px;margin-top:12px}
+@media(max-width:780px){header{align-items:flex-start;flex-direction:column}.layout{grid-template-columns:1fr}.hero p{font-size:15px}.panel-title{font-size:10px}.brand{font-size:13px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;scroll-behavior:auto!important}}
+
+/* GraveMint mint panel */
+.gm-panel{margin-top:22px;border-color:#8b6b2b;background:linear-gradient(145deg,#29261d,#171914)}
+.gm-panel .panel-title{color:var(--yellow)}
+.gm-copy{color:#c9cdbd;font-size:14px;line-height:1.7}
+.gm-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.gm-btn{background:var(--orange);color:#171717;padding:13px 16px;border-radius:8px;font-weight:700}
+.gm-btn.secondary{background:#252820;border:1px solid #697153;color:#f8f5e9}
+.gm-btn:disabled{opacity:.55;cursor:wait;transform:none}
+.gm-status{margin-top:14px;padding:12px;border-radius:8px;background:#10120f;border:1px solid #424735;color:#d8dccd;font-size:13px;line-height:1.7;overflow-wrap:anywhere}
+.gm-status[data-kind="error"]{border-color:#b44d38;color:#ffc0ad}
+.gm-status[data-kind="success"]{border-color:#4b9a67;color:#b7f3c9}
+.gm-small{color:#9ea58f;font-size:11px;line-height:1.7;margin-top:12px}
+
+</style>
+</head>
+<body>
+<header><div class="brand">FROGINALS<span>SWAMP SPIN / COLLECTIBLES</span></div><nav><button class="navbtn active" data-view="spin">🎡 Spin</button><button class="navbtn" data-view="inventory">🎒 Inventory</button><button class="navbtn" data-view="collection">🗂 Collection</button></nav></header>
+<main>
+<section class="hero"><div class="eyebrow">/// RECRUIT REWARD PROTOCOL ///</div><h1>SWAMP SPIN</h1><p>One spin. One recruitment badge. Choose your place in the FROGINALS army.</p></section>
+<section class="view active" id="spin">
+<div class="layout">
+<div class="panel"><h2 class="panel-title">YOUR BADGE IS LOADING...</h2><div class="wheel-wrap"><div class="pointer"></div><canvas id="wheel" width="700" height="700" aria-label="Prize wheel with Gold, Silver, and Wood FROGINALS badge tiers"></canvas></div><button class="spinbtn" id="spinBtn">▶ SPIN FOR YOUR BADGE</button><p class="note" id="spinNote">One welcome badge spin per browser (prototype).</p></div>
+<div class="panel"><h2 class="panel-title">BADGE DROP RATES</h2><div class="odds" id="odds"></div><p class="rule"><strong>PROTOTYPE NOTICE:</strong> This demo saves your spin in this browser only. It is not secure against resets or multiple browsers. Server-side validation is required before public launch or Discord integration.</p></div>
+</div>
+</section>
+<section class="view" id="inventory"><div class="panel"><h2 class="panel-title">YOUR SWAMP INVENTORY</h2><div id="inventoryGrid" class="inventory-grid"></div><p class="status" id="inventoryStatus"></p></div></section>
+<section class="view" id="collection"><div class="panel"><h2 class="panel-title">THE COLLECTIBLE INDEX</h2><div id="collectionGrid" class="inventory-grid"></div><p class="status">All 50 designs are cosmetic prototype badges: 12 Gold, 22 Silver, and 16 Wood. No NFT or on-chain asset is issued by this demo.</p></div></section>
+
+<section class="panel gm-panel" id="gravemint">
+  <h2 class="panel-title">GRAVEMINT · RECRUITMENT BADGE MINT</h2>
+  <p class="gm-copy">Connect a Solana wallet to mint one random FROGINALS Recruitment Badge from the official GraveMint drop. GraveMint controls the actual NFT selection, eligibility, pricing, and transaction.</p>
+  <div class="gm-actions">
+    <button class="gm-btn" id="gmMintBtn" type="button">CONNECT WALLET & MINT</button>
+    <button class="gm-btn secondary" id="gmDropBtn" type="button">VIEW OFFICIAL DROP ↗</button>
+  </div>
+  <div class="gm-status" id="gmStatus" role="status" aria-live="polite">Minting is not configured yet. Add your publishable GraveMint key in the configuration below, and ensure this site's exact origin is allow-listed by GraveMint.</div>
+  <p class="gm-small">This uses GraveMint's supported mint API where the drop supports partner minting. If the drop uses an unsupported mint mechanic, this panel will send you to the official GraveMint mint page instead. Never put a gm_live_ secret key in this website.</p>
+</section>
+
+<div class="footer">BUILT FOR THE <b>FROGINALS</b> COMMUNITY · PROTOTYPE v0.1</div>
+</main>
+<div class="modal" id="resultModal" role="dialog" aria-modal="true" aria-labelledby="resultTitle"><div class="result-card"><div class="burst" id="resultEmoji">🐸</div><div class="label">BADGE UNLOCKED</div><h2 id="resultTitle">SWAMP RECRUIT BADGE</h2><p id="resultDesc"></p><button id="closeResult">ADD TO ARMORY</button></div></div>
+<script>
+const tierConfig=[
+ {id:'gold',name:'GOLD BADGES',rarity:'GOLD TIER',odds:24,color:'#ffd447',emoji:'🏅',desc:'Prestige recruitment insignia in polished gold.'},
+ {id:'silver',name:'SILVER BADGES',rarity:'SILVER TIER',odds:44,color:'#cbd5e1',emoji:'🛡️',desc:'Tactical and technical silver recruitment insignia.'},
+ {id:'wood',name:'WOOD BADGES',rarity:'WOOD TIER',odds:32,color:'#b98250',emoji:'🪵',desc:'Rustic carved wood recruitment insignia.'}
+];
+const badgeSets=[
+ {tier:'gold',items:[
+  ['Golden Froginal Recruit','🐸'],['Swamp General','🎖️'],['Golden Crown','👑'],['First Wave Legend','🌅'],
+  ['Golden Frog Skull','💀'],['Swamp Commander','⚔️'],['Golden Doge Ally','🐕'],['Crypto Swamp Elite','🪙'],
+  ['Legendary Helmet','🪖'],['Golden Trident','🔱'],['Royal Froginal Shield','🛡️'],['Eternal Swamp','🌿']
+ ]},
+ {tier:'silver',items:[
+  ['Silver Recruit','🐸'],['Swamp Scout','🧭'],['Froginal Soldier','🪖'],['Recon Specialist','🔭'],
+  ['Marsh Guardian','🛡️'],['Swamp Ranger','🌾'],['Signal Operator','📡'],['Crypto Navigator','🧭'],
+  ['Tactical Helmet','⛑️'],['Night Patrol','🌙'],['River Patrol','🌊'],['Mud Runner','👣'],
+  ['Iron Frog','⚙️'],['Swamp Engineer','🔧'],['Froginal Medic','✚'],['Recon Drone','🚁'],
+  ['Marsh Defender','🌿'],['Pixel Warrior','👾'],['Silver Coin Guard','🪙'],['Tactical Branch','🌱'],
+  ['Swamp Alliance','🤝'],['Silver Vanguard','⚔️']
+ ]},
+ {tier:'wood',items:[
+  ['First Swamp Recruit','🐸'],['Rookie Froginal','🐸'],['Mud Walker','👣'],['Swamp Explorer','🧭'],
+  ['Reed Keeper','🌾'],['Frog Foot Soldier','🛡️'],['Woodland Scout','🍃'],['Mud Boots','🥾'],
+  ['Camp Recruit','🔥'],['Swamp Trailblazer','➡️'],['Wooden Frog Shield','🛡️'],['Little Marsh Guardian','🌿'],
+  ['Swamp Builder','🪵'],['Rookie Patrol','👀'],['Froginal Footprint','🐾'],['The First Step','🌱']
+ ]}
+];
+const badges=badgeSets.flatMap(set=>set.items.map((item,index)=>{
+ const tier= tierConfig.find(t=>t.id===set.tier);
+ const number=String(index+1).padStart(2,'0');
+ const prefix=set.tier==='gold'?'G':set.tier==='silver'?'S':'W';
+ return {id:prefix+number,name:item[0],tier:set.tier,rarity:tier.rarity,color:tier.color,emoji:item[1],desc:item[0]+' — an official FROGINALS recruitment badge design.',odds:2};
+}));
+const STORAGE_KEY='froginals_badge_spin_v2';
+let isSpinning=false;
+const wheel=document.getElementById('wheel'),ctx=wheel.getContext('2d');
+function drawWheel(){
+ const cx=350,cy=350,r=320;ctx.clearRect(0,0,700,700);
+ let start=-Math.PI/2;
+ tierConfig.forEach((item)=>{
+   const end=start+Math.PI*2*item.odds/100;
+   ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,end);ctx.closePath();ctx.fillStyle=item.color;ctx.fill();ctx.strokeStyle='#171717';ctx.lineWidth=7;ctx.stroke();
+   const mid=(start+end)/2;ctx.save();ctx.translate(cx+Math.cos(mid)*r*.66,cy+Math.sin(mid)*r*.66);ctx.rotate(mid+Math.PI/2);
+   ctx.fillStyle='#171717';ctx.textAlign='center';ctx.font='bold 31px sans-serif';ctx.fillText(item.emoji,0,-12);ctx.font='bold 15px sans-serif';
+   const label=item.id==='gold'?'GOLD':item.id==='silver'?'SILVER':'WOOD';
+   ctx.fillText(label,0,17);ctx.fillText(item.odds+'%',0,37);ctx.restore();start=end;
+ });
+ ctx.beginPath();ctx.arc(cx,cy,66,0,Math.PI*2);ctx.fillStyle='#171717';ctx.fill();ctx.lineWidth=9;ctx.strokeStyle='#ffd447';ctx.stroke();ctx.fillStyle='#ff7900';ctx.font='bold 25px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('FROG',cx,cy-9);ctx.fillText('INALS',cx,cy+20);
+}
+function getState(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{used:false,inventory:[]}}catch(e){return {used:false,inventory:[]}}}
+function saveState(s){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(s))}catch(e){}}
+function chooseReward(){
+ const n=Math.random()*100;let total=0;let chosenTier=tierConfig[tierConfig.length-1];
+ for(const tier of tierConfig){total+=tier.odds;if(n<total){chosenTier=tier;break}}
+ const pool=badges.filter(b=>b.tier===chosenTier.id);
+ return pool[Math.floor(Math.random()*pool.length)];
+}
+function renderOdds(){document.getElementById('odds').innerHTML=tierConfig.map(t=>'<div class="tier" style="--tier:'+t.color+'"><span class="dot"></span><div><strong>'+t.name+'</strong><small>'+ (t.id==='gold'?'12 designs':t.id==='silver'?'22 designs':'16 designs')+' · '+t.odds/ (t.id==='gold'?12:t.id==='silver'?22:16)+'% per badge</small></div><span class="percent">'+t.odds+'%</span></div>').join('')}
+function card(r,locked=false){
+ const tierClass='tier-'+r.tier;
+ return '<article class="collectible '+(locked?'locked':'')+'"><div class="badge-emblem '+tierClass+'"><span>'+(locked?'🔒':r.emoji)+'</span><small>'+r.id+'</small></div><h3>'+(locked?'???':r.name)+'</h3><p>'+(locked?'Not collected':r.rarity+' · 2% chance')+'</p></article>';
+}
+function render(){
+ const s=getState(),btn=document.getElementById('spinBtn'),note=document.getElementById('spinNote');
+ btn.disabled=s.used||isSpinning;btn.textContent=s.used?'✓ WELCOME BADGE CLAIMED':'▶ SPIN FOR YOUR BADGE';
+ note.textContent=s.used?'Your welcome badge spin has been used in this browser.':'One welcome spin. Every one of the 50 badge designs has an equal 2% chance.';
+ const counts={};s.inventory.forEach(id=>counts[id]=(counts[id]||0)+1);
+ document.getElementById('inventoryGrid').innerHTML=s.inventory.length?s.inventory.map(id=>{const r=badges.find(x=>x.id===id);return r?card(r,false):''}).join(''):'<p class="status">Your inventory is empty. Claim your welcome spin to unlock your first FROGINALS badge.</p>';
+ document.getElementById('inventoryStatus').textContent='Badges claimed: '+s.inventory.length+' · Duplicate badge rewards are allowed in this prototype.';
+ document.getElementById('collectionGrid').innerHTML=badges.map(r=>card(r,!counts[r.id])).join('');
+}
+function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.view===id));if(id==='inventory'||id==='collection')render()}
+document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+document.getElementById('spinBtn').addEventListener('click',()=>{
+ const s=getState();if(s.used||isSpinning)return;
+ isSpinning=true;render();
+ // Demo-only selection. Production must select and persist the result on a trusted server.
+ const reward=chooseReward();const selectedTier=tierConfig.find(t=>t.id===reward.tier);const start=tierConfig.slice(0,tierConfig.indexOf(selectedTier)).reduce((sum,t)=>sum+t.odds,0);const targetPct=start+selectedTier.odds/2;
+ const targetAngle=360-(targetPct*3.6);const current=(Number(wheel.dataset.rotation)||0)%360;const extra=360*6+((targetAngle-current+360)%360);const rotation=(Number(wheel.dataset.rotation)||0)+extra;
+ wheel.style.transform='rotate('+rotation+'deg)';wheel.dataset.rotation=rotation;
+ setTimeout(()=>{
+  const fresh=getState();fresh.used=true;fresh.inventory.push(reward.id);saveState(fresh);isSpinning=false;render();
+  document.getElementById('resultEmoji').textContent=reward.emoji;document.getElementById('resultTitle').textContent=reward.name;document.getElementById('resultDesc').textContent=reward.desc+' Drop rate: '+reward.odds+'%. This is a local prototype reward.';
+  document.getElementById('resultModal').classList.add('show');
+ },5400);
+});
+document.getElementById('closeResult').addEventListener('click',()=>{document.getElementById('resultModal').classList.remove('show');showView('inventory')});
+document.getElementById('resultModal').addEventListener('click',e=>{if(e.target.id==='resultModal')document.getElementById('resultModal').classList.remove('show')});
+drawWheel();renderOdds();render();
+</script>
+
+<script type="module">
+const GM_CONFIG = {
+  // Paste the publishable gm_pub_ key issued for this collection and these website origins.
+  // This key is intended for browser use. Never put a gm_live_ key here.
+  apiKey: "PASTE_GM_PUB_KEY_HERE",
+  collectionId: "rdzucb",
+  mintUrl: "https://gravemint.io/mint/rdzucb",
+  holderEligibilityUrl: "https://froginals-nu.vercel.app/api/verify-swamp-spin-eligibility"
+};
+const gmButton = document.getElementById("gmMintBtn");
+const gmDropButton = document.getElementById("gmDropBtn");
+const gmStatus = document.getElementById("gmStatus");
+let gmBusy = false;
+function gmMessage(message, kind = "info") {
+  gmStatus.textContent = message;
+  gmStatus.dataset.kind = kind;
+}
+gmDropButton.addEventListener("click", () => window.open(GM_CONFIG.mintUrl, "_blank", "noopener,noreferrer"));
+gmButton.addEventListener("click", async () => {
+  if (gmBusy) return;
+  if (!GM_CONFIG.apiKey || GM_CONFIG.apiKey === "PASTE_GM_PUB_KEY_HERE" || !GM_CONFIG.apiKey.startsWith("gm_pub_")) {
+    gmMessage("Configuration needed: paste your publishable gm_pub_ key into GM_CONFIG in index.html. Do not use a gm_live_ secret key in browser code.", "error");
+    return;
+  }
+  const provider = window.phantom?.solana || window.solana;
+  if (!provider || typeof provider.connect !== "function" || typeof provider.signTransaction !== "function") {
+    gmMessage("No compatible Solana wallet was found. Install or open Phantom (or a compatible injected wallet), then try again.", "error");
+    return;
+  }
+  gmBusy = true;
+  gmButton.disabled = true;
+  gmButton.textContent = "CONNECTING…";
+  try {
+    const { GraveMintClient } = await import("https://esm.sh/@solanadeads/gravemint@1.3.0");
+    const gm = new GraveMintClient({ apiKey: GM_CONFIG.apiKey, timeoutMs: 30000, maxRetries: 2 });
+    gmMessage("Connecting your wallet…");
+    const connected = await provider.connect();
+    const walletAddress = connected?.publicKey?.toString?.() || provider.publicKey?.toString?.();
+    if (!walletAddress) throw new Error("Wallet connection did not return a public address.");
+
+    gmMessage("Verifying FROGINAL DOGS holder eligibility…");
+    const holderResponse = await fetch(GM_CONFIG.holderEligibilityUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({ wallet_address: walletAddress }),
+      cache: "no-store"
+    });
+    const holderCheck = await holderResponse.json().catch(() => ({}));
+    if (!holderResponse.ok || holderCheck.success !== true) {
+      throw new Error(holderCheck.error || "The FROGINAL DOGS holder verification service is unavailable. No mint was submitted.");
+    }
+    if (holderCheck.eligible !== true) {
+      gmMessage("This wallet does not currently qualify: hold a verified FROGINAL DOGS NFT to mint a recruitment badge. No transaction was submitted.", "error");
+      return;
+    }
+
+    gmMessage("FROGINAL DOGS ownership confirmed. Checking the official drop and its supported mint flow…");
+    const drop = await gm.v1.collection(GM_CONFIG.collectionId);
+    const mintUrl = drop?.capabilities?.mintUrl || GM_CONFIG.mintUrl;
+    if (drop?.capabilities?.supportedBySurface !== true) {
+      gmMessage("This drop requires a mint mechanic that this embedded integration does not support. Opening the official GraveMint mint page instead.", "info");
+      window.open(mintUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+    if (drop?.collection?.chain && !String(drop.collection.chain).toLowerCase().includes("solana")) {
+      gmMessage("This drop is not on Solana, so the embedded Solana wallet flow cannot mint it. Opening GraveMint's official page.", "error");
+      window.open(mintUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+    const phases = drop?.phases?.active || [];
+    const phase = phases.find(p => p && p.id);
+    if (!phase) {
+      gmMessage("There is no active mint phase available for this drop right now. You can check the official GraveMint page.", "error");
+      window.open(mintUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    gmMessage("Checking wallet eligibility…");
+    const verdict = await gm.v1.eligibility(drop.collection.id || GM_CONFIG.collectionId, phase.id, walletAddress);
+    if (verdict?.eligible === false || verdict?.isEligible === false) {
+      gmMessage("GraveMint says this wallet is not eligible for the current mint phase. No transaction was submitted.", "error");
+      return;
+    }
+
+    gmMessage("Preparing a mint with GraveMint. Review the wallet signing request carefully…");
+    const result = await gm.mint.mint({
+      collectionId: drop.collection.id || GM_CONFIG.collectionId,
+      phaseId: phase.id,
+      quantity: 1,
+      walletAddress,
+      signer: provider,
+      walletProvider: provider.isPhantom ? "Phantom" : "Solana wallet"
+    });
+    gmMessage("GraveMint returned a completed mint response. Check your wallet and the official drop activity to verify the NFT. If the wallet did not show a confirmed transaction, do not retry immediately.", "success");
+    if (result?.transactionSignature || result?.signature || result?.txSignature) {
+      const signature = result.transactionSignature || result.signature || result.txSignature;
+      gmMessage("Mint transaction reported by GraveMint: " + signature + ". Verify it on Solscan before claiming the badge is in your wallet.", "success");
+      const link = document.createElement("a");
+      link.href = "https://solscan.io/tx/" + encodeURIComponent(signature);
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "View transaction on Solscan";
+      link.style.display = "inline-block";
+      link.style.marginTop = "8px";
+      link.style.color = "#ffd447";
+      gmStatus.appendChild(document.createElement("br"));
+      gmStatus.appendChild(link);
+    }
+  } catch (error) {
+    const code = error?.code ? " (" + error.code + ")" : "";
+    const detail = error?.message || "Unknown GraveMint error.";
+    gmMessage("Mint was not confirmed" + code + ": " + detail + " You can open the official GraveMint page to continue. Do not assume an NFT was issued unless the wallet/transaction confirms it.", "error");
+    if (["ORIGIN_NOT_ALLOWED", "COLLECTION_NOT_IN_SCOPE", "SCOPE_NOT_GRANTED", "API_KEY_INVALID", "API_KEY_INACTIVE", "API_KEY_EXPIRED"].includes(error?.code)) {
+      gmMessage("GraveMint access needs configuration" + code + ": " + detail + " Ask GraveMint to allow-list this site's origin and scope the publishable key to collection rdzucb with the mint permission.", "error");
+    }
+  } finally {
+    gmBusy = false;
+    gmButton.disabled = false;
+    gmButton.textContent = "CONNECT WALLET & MINT";
+  }
+});
+</script>
+
+</body>
+</html>
