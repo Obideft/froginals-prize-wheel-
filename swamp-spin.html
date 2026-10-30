@@ -8,9 +8,12 @@
 <title>FROGINALS SWAMP SPIN</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-:root{--orange:#ff7900;--yellow:#ffd447;--ink:#171717;--green:#9bd45c;--purple:#9d67ff;--panel:#22231f;--muted:#b8b8a9}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 0%,#35432a 0,#171914 50%,#10110f 100%);color:#f8f5e9;font-family:'Space Grotesk',sans-serif;min-height:100vh}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background-image:linear-gradient(45deg,#8ab64c 25%,transparent 25%),linear-gradient(-45deg,#8ab64c 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#8ab64c 75%),linear-gradient(-45deg,transparent 75%,#8ab64c 75%);background-size:36px 36px;background-position:0 0,0 18px,18px -18px,-18px 0}
+:root{--orange:#ff7900;--yellow:#ffd447;--ink:#171717;--green:#9bd45c;--purple:#9d67ff;--panel:#22231f;--muted:#b8b8a9;--pfp-pattern:url("https://raw.githubusercontent.com/Obideft/froginals/main/images/Log01.png")}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 50% 0%,#496b32 0,#25351d 48%,#11170f 100%);color:#f8f5e9;font-family:'Space Grotesk',sans-serif;min-height:100vh;position:relative;isolation:isolate}
+body:before{content:"";position:fixed;z-index:-1;inset:-35%;pointer-events:none;opacity:.25;background-image:linear-gradient(135deg,rgba(89,137,52,.42),rgba(21,38,16,.58)),var(--pfp-pattern);background-size:auto,148px 148px;background-repeat:repeat;filter:blur(8px) saturate(.72);transform:rotate(-18deg) scale(1.05);animation:swampPfpDrift 52s linear infinite}
+body:after{content:"";position:fixed;z-index:-1;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(28,52,20,.15),rgba(9,15,8,.48));}
+@keyframes swampPfpDrift{from{background-position:0 0,0 0}to{background-position:0 0,296px 296px}}
 header{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px clamp(16px,4vw,56px);border-bottom:2px solid #ff790044;background:#11120fe8}
 .brand{font:clamp(12px,1.5vw,18px)/1.7 'Press Start 2P',monospace;color:var(--yellow);text-shadow:3px 3px #a34500}.brand span{display:block;font:700 11px 'Space Grotesk',sans-serif;letter-spacing:3px;color:#d2d6c5;text-shadow:none;margin-top:6px}
 nav{display:flex;gap:10px;flex-wrap:wrap}
@@ -35,8 +38,7 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
 .status{font-size:12px;color:#c5c9ba;margin-top:12px;line-height:1.7}.footer{text-align:center;color:#7e8574;font-size:12px;margin-top:30px}.footer b{color:var(--orange)}
 .modal{position:fixed;z-index:10;inset:0;background:#070806df;display:none;place-items:center;padding:20px}.modal.show{display:grid}.result-card{width:min(440px,100%);text-align:center;background:#20231c;border:3px solid var(--yellow);border-radius:18px;padding:30px;box-shadow:0 0 70px #ff790044}.result-card .burst{font-size:60px}.result-card .label{font:10px 'Press Start 2P',monospace;color:var(--green);margin:16px 0}.result-card h2{font:clamp(15px,3vw,21px)/1.8 'Press Start 2P',monospace;color:var(--yellow)}.result-card p{color:#c8cbbb;line-height:1.7}.result-card button{background:var(--orange);padding:13px 20px;border-radius:8px;margin-top:12px}
 @media(max-width:780px){header{align-items:flex-start;flex-direction:column}.layout{grid-template-columns:1fr}.hero p{font-size:15px}.panel-title{font-size:10px}.brand{font-size:13px}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;scroll-behavior:auto!important}}
-
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 /* GraveMint mint panel */
 .gm-panel{margin-top:22px;border-color:#8b6b2b;background:linear-gradient(145deg,#29261d,#171914)}
 .gm-panel .panel-title{color:var(--yellow)}
@@ -49,7 +51,6 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
 .gm-status[data-kind="error"]{border-color:#b44d38;color:#ffc0ad}
 .gm-status[data-kind="success"]{border-color:#4b9a67;color:#b7f3c9}
 .gm-small{color:#9ea58f;font-size:11px;line-height:1.7;margin-top:12px}
-
 </style>
 </head>
 <body>
@@ -64,7 +65,6 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
 </section>
 <section class="view" id="inventory"><div class="panel"><h2 class="panel-title">YOUR SWAMP INVENTORY</h2><div id="inventoryGrid" class="inventory-grid"></div><p class="status" id="inventoryStatus"></p></div></section>
 <section class="view" id="collection"><div class="panel"><h2 class="panel-title">THE COLLECTIBLE INDEX</h2><div id="collectionGrid" class="inventory-grid"></div><p class="status">All 50 designs are cosmetic prototype badges: 12 Gold, 22 Silver, and 16 Wood. No NFT or on-chain asset is issued by this demo.</p></div></section>
-
 <section class="panel gm-panel" id="gravemint">
   <h2 class="panel-title">GRAVEMINT · RECRUITMENT BADGE MINT</h2>
   <p class="gm-copy">Connect a Solana wallet to mint one random FROGINALS Recruitment Badge from the official GraveMint drop. GraveMint controls the actual NFT selection, eligibility, pricing, and transaction.</p>
@@ -75,7 +75,6 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
   <div class="gm-status" id="gmStatus" role="status" aria-live="polite">Minting is not configured yet. Add your publishable GraveMint key in the configuration below, and ensure this site's exact origin is allow-listed by GraveMint.</div>
   <p class="gm-small">This uses GraveMint's supported mint API where the drop supports partner minting. If the drop uses an unsupported mint mechanic, this panel will send you to the official GraveMint mint page instead. Never put a gm_live_ secret key in this website.</p>
 </section>
-
 <div class="footer">BUILT FOR THE <b>FROGINALS</b> COMMUNITY · PROTOTYPE v0.1</div>
 </main>
 <div class="modal" id="resultModal" role="dialog" aria-modal="true" aria-labelledby="resultTitle"><div class="result-card"><div class="burst" id="resultEmoji">🐸</div><div class="label">BADGE UNLOCKED</div><h2 id="resultTitle">SWAMP RECRUIT BADGE</h2><p id="resultDesc"></p><button id="closeResult">ADD TO ARMORY</button></div></div>
@@ -84,8 +83,10 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
  const address=document.getElementById('walletAddress'),name=document.getElementById('walletName'),avatar=document.getElementById('walletAvatar');
  const fallback='https://raw.githubusercontent.com/Obideft/froginals/main/images/Log01.png';
  let activeWallet='',lookupWallet='';
+ function setPfpPattern(src){if(src){document.documentElement.style.setProperty('--pfp-pattern','url("'+String(src).replace(/["\\]/g,'')+'")')}}
+ setPfpPattern(fallback);
  function shortWallet(key){const s=String(key||'');return s.length>18?s.slice(0,6)+'…'+s.slice(-6):s}
- function showDisconnected(message){name.textContent='FROGINAL PROFILE';address.textContent=message;avatar.src=fallback;avatar.alt='FROGINALS logo'}
+ function showDisconnected(message){name.textContent='FROGINAL PROFILE';address.textContent=message;avatar.src=fallback;avatar.alt='FROGINALS logo';setPfpPattern(fallback)}
  async function loadHolderProfile(wallet){
   if(!wallet||lookupWallet===wallet)return;
   lookupWallet=wallet;activeWallet=wallet;name.textContent='VERIFYING FROGINAL NFT…';address.textContent=shortWallet(wallet);
@@ -93,10 +94,10 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
    const response=await fetch('https://froginals-nu.vercel.app/api/verify-swamp-spin-eligibility',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({wallet_address:wallet}),cache:'no-store'});
    const data=await response.json();if(activeWallet!==wallet)return;
    if(!response.ok||data.success!==true)throw new Error(data.error||'Profile lookup unavailable');
-   if(data.eligible!==true){name.textContent='FROGINAL DOGS NOT FOUND';address.textContent=shortWallet(wallet);avatar.src=fallback;avatar.alt='FROGINALS logo';return}
-   name.textContent=data.nft_name||'FROGINAL DOGS HOLDER';address.textContent=shortWallet(wallet);avatar.src=data.nft_image_url||fallback;avatar.alt=(data.nft_name||'FROGINAL DOGS NFT')+' profile picture';
-   avatar.onerror=()=>{avatar.onerror=null;avatar.src=fallback;avatar.alt='FROGINALS logo'};
-  }catch(error){if(activeWallet!==wallet)return;name.textContent='FROGINAL PROFILE';address.textContent=shortWallet(wallet)+' · NFT lookup unavailable';avatar.src=fallback;avatar.alt='FROGINALS logo';console.warn('FROGINAL profile lookup failed:',error.message)}
+   if(data.eligible!==true){name.textContent='FROGINAL DOGS NOT FOUND';address.textContent=shortWallet(wallet);avatar.src=fallback;avatar.alt='FROGINALS logo';setPfpPattern(fallback);return}
+   name.textContent=data.nft_name||'FROGINAL DOGS HOLDER';address.textContent=shortWallet(wallet);avatar.src=data.nft_image_url||fallback;avatar.alt=(data.nft_name||'FROGINAL DOGS NFT')+' profile picture';setPfpPattern(data.nft_image_url||fallback);
+   avatar.onerror=()=>{avatar.onerror=null;avatar.src=fallback;avatar.alt='FROGINALS logo';setPfpPattern(fallback)};
+  }catch(error){if(activeWallet!==wallet)return;name.textContent='FROGINAL PROFILE';address.textContent=shortWallet(wallet)+' · NFT lookup unavailable';avatar.src=fallback;avatar.alt='FROGINALS logo';setPfpPattern(fallback);console.warn('FROGINAL profile lookup failed:',error.message)}
  }
  const provider=window.phantom?.solana||window.solana;
  if(!provider){showDisconnected('Open Phantom to connect');return}
@@ -106,7 +107,6 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
  provider.on?.('disconnect',()=>{activeWallet='';lookupWallet='';showDisconnected('Wallet disconnected')});
 })();
 </script>
-
 <script>
 const tierConfig=[
  {id:'gold',name:'GOLD BADGES',rarity:'GOLD TIER',odds:24,color:'#ffd447',emoji:'🏅',desc:'Prestige recruitment insignia in polished gold.'},
@@ -197,7 +197,6 @@ document.getElementById('closeResult').addEventListener('click',()=>{document.ge
 document.getElementById('resultModal').addEventListener('click',e=>{if(e.target.id==='resultModal')document.getElementById('resultModal').classList.remove('show')});
 drawWheel();renderOdds();render();
 </script>
-
 <script type="module">
 const GM_CONFIG = {
   // Paste the publishable gm_pub_ key issued for this collection and these website origins.
@@ -320,6 +319,5 @@ gmButton.addEventListener("click", async () => {
   }
 });
 </script>
-
 </body>
 </html>
