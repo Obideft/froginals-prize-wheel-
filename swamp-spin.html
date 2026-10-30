@@ -11,7 +11,7 @@
 :root{--orange:#ff7900;--yellow:#ffd447;--ink:#171717;--green:#9bd45c;--purple:#9d67ff;--panel:#22231f;--muted:#b8b8a9;--pfp-pattern:url("https://raw.githubusercontent.com/Obideft/froginals/main/images/Log01.png")}
 *{box-sizing:border-box}
 body{margin:0;background:transparent;color:#f8f5e9;font-family:'Space Grotesk',sans-serif;min-height:100vh;position:relative;isolation:isolate}
-body:before{content:"";position:fixed;z-index:-1;inset:-35%;pointer-events:none;opacity:.25;background-image:var(--pfp-pattern);background-size:148px 148px;background-repeat:repeat;filter:blur(8px) saturate(.72);transform:rotate(-18deg) scale(1.05);animation:swampPfpDrift 52s linear infinite}
+body:before{content:"";position:fixed;z-index:-1;inset:-35%;pointer-events:none;opacity:1;background-image:var(--pfp-pattern);background-size:148px 148px;background-repeat:repeat;filter:blur(8px) saturate(.72);transform:rotate(-18deg) scale(1.05);animation:swampPfpDrift 52s linear infinite}
 @keyframes swampPfpDrift{from{background-position:0 0,0 0}to{background-position:0 0,296px 296px}}
 header{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px clamp(16px,4vw,56px);border-bottom:2px solid #ff790044;background:#11120fe8}
 .brand{font:clamp(12px,1.5vw,18px)/1.7 'Press Start 2P',monospace;color:var(--yellow);text-shadow:3px 3px #a34500}.brand span{display:block;font:700 11px 'Space Grotesk',sans-serif;letter-spacing:3px;color:#d2d6c5;text-shadow:none;margin-top:6px}
