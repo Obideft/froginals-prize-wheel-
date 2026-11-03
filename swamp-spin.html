@@ -66,12 +66,12 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
 <section class="view" id="collection"><div class="panel"><h2 class="panel-title">THE COLLECTIBLE INDEX</h2><div id="collectionGrid" class="inventory-grid"></div><p class="status">All 50 designs are cosmetic prototype badges: 12 Gold, 22 Silver, and 16 Wood. No NFT or on-chain asset is issued by this demo.</p></div></section>
 <section class="panel gm-panel" id="gravemint">
   <h2 class="panel-title">GRAVEMINT · RECRUITMENT BADGE MINT</h2>
-  <p class="gm-copy">Connect a Solana wallet to mint one random FROGINALS Recruitment Badge from the official GraveMint drop. GraveMint controls the actual NFT selection, eligibility, pricing, and transaction.</p>
+  <p class="gm-copy">Connect a Solana wallet, verify FROGINAL DOGS ownership, then mint from the separate Recruitment Badges GraveMint drop. GraveMint controls the actual NFT selection, eligibility, pricing, and transaction.</p>
   <div class="gm-actions">
     <button class="gm-btn" id="gmMintBtn" type="button">CONNECT WALLET & MINT</button>
     <button class="gm-btn secondary" id="gmDropBtn" type="button">VIEW OFFICIAL DROP ↗</button>
   </div>
-  <div class="gm-status" id="gmStatus" role="status" aria-live="polite">Minting is not configured yet. The hosted GraveMint drop is available. Embedded minting still needs a scoped publishable key and this site origin allow-listed by GraveMint.</div>
+  <div class="gm-status" id="gmStatus" role="status" aria-live="polite">FROGINAL DOGS holder verification runs separately on our server. Badge minting needs the Recruitment Badges gm_pub_ key, scoped to rdzucb and this site's approved origin.</div>
   <p class="gm-small">This uses GraveMint's supported mint API where the drop supports partner minting. If the drop uses an unsupported mint mechanic, this panel will send you to the official GraveMint mint page instead. Never put a gm_live_ secret key in this website.</p>
 </section>
 <div class="footer">BUILT FOR THE <b>FROGINALS</b> COMMUNITY · PROTOTYPE v0.1</div>
@@ -199,13 +199,28 @@ document.getElementById('resultModal').addEventListener('click',e=>{if(e.target.
 drawWheel();renderOdds();render();
 </script>
 <script type="module">
-const GM_CONFIG = {
-  // Paste the publishable gm_pub_ key issued for this collection and these website origins.
-  // This key is intended for browser use. Never put a gm_live_ key here.
-  apiKey: "PASTE_GM_PUB_KEY_HERE",
-  collectionId: "rdzucb",
-  mintUrl: "https://gravemint.io/mint/rdzucb",
-  holderEligibilityUrl: "https://froginals-nu.vercel.app/api/verify-swamp-spin-eligibility"
+// Keep the two collections separate. FROGINAL DOGS is checked by our
+// server-side Helius ownership verifier; it is NOT the collection being minted.
+const COLLECTION_CONFIG = {
+  froginalDogs: {
+    collectionAddress: "DEADY34TucemEebp6PJwmggAGDUmpSMoS4CcESKNBPRh",
+    verificationUrl: "https://froginals-nu.vercel.app/api/verify-swamp-spin-eligibility"
+  },
+  recruitmentBadges: {
+    shortId: "rdzucb",
+    mintUrl: "https://gravemint.io/mint/rdzucb"
+  }
+};
+
+// This must be the gm_pub_ key scoped to the RECRUITMENT BADGES drop.
+// The FROGINAL DOGS collection does not need a browser GraveMint key:
+// its verified ownership is checked by the server endpoint above.
+// Never put a gm_live_ secret key in this file.
+const BADGE_MINT_CONFIG = {
+  apiKey: "PASTE_RECRUITMENT_BADGE_GM_PUB_KEY_HERE",
+  collectionId: COLLECTION_CONFIG.recruitmentBadges.shortId,
+  mintUrl: COLLECTION_CONFIG.recruitmentBadges.mintUrl,
+  holderEligibilityUrl: COLLECTION_CONFIG.froginalDogs.verificationUrl
 };
 const gmButton = document.getElementById("gmMintBtn");
 const gmDropButton = document.getElementById("gmDropBtn");
@@ -215,10 +230,10 @@ function gmMessage(message, kind = "info") {
   gmStatus.textContent = message;
   gmStatus.dataset.kind = kind;
 }
-gmDropButton.addEventListener("click", () => window.open(GM_CONFIG.mintUrl, "_blank", "noopener,noreferrer"));
+gmDropButton.addEventListener("click", () => window.open(BADGE_MINT_CONFIG.mintUrl, "_blank", "noopener,noreferrer"));
 gmButton.addEventListener("click", async () => {
   if (gmBusy) return;
-  if (!GM_CONFIG.apiKey || GM_CONFIG.apiKey === "PASTE_GM_PUB_KEY_HERE" || !GM_CONFIG.apiKey.startsWith("gm_pub_")) {
+  if (!BADGE_MINT_CONFIG.apiKey || BADGE_MINT_CONFIG.apiKey === "PASTE_RECRUITMENT_BADGE_GM_PUB_KEY_HERE" || !BADGE_MINT_CONFIG.apiKey.startsWith("gm_pub_")) {
     gmMessage("Configuration needed: paste your publishable gm_pub_ key into GM_CONFIG in swamp-spin.html. Do not use a gm_live_ secret key in browser code.", "error");
     return;
   }
@@ -232,14 +247,14 @@ gmButton.addEventListener("click", async () => {
   gmButton.textContent = "CONNECTING…";
   try {
     const { GraveMintClient } = await import("https://esm.sh/@solanadeads/gravemint@1.3.0");
-    const gm = new GraveMintClient({ apiKey: GM_CONFIG.apiKey, timeoutMs: 30000, maxRetries: 2 });
+    const gm = new GraveMintClient({ apiKey: BADGE_MINT_CONFIG.apiKey, timeoutMs: 30000, maxRetries: 2 });
     gmMessage("Connecting your wallet…");
     const connected = await provider.connect();
     const walletAddress = connected?.publicKey?.toString?.() || provider.publicKey?.toString?.();
     if (!walletAddress) throw new Error("Wallet connection did not return a public address.");
 
     gmMessage("Verifying FROGINAL DOGS holder eligibility…");
-    const holderResponse = await fetch(GM_CONFIG.holderEligibilityUrl, {
+    const holderResponse = await fetch(BADGE_MINT_CONFIG.holderEligibilityUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
       body: JSON.stringify({ wallet_address: walletAddress }),
@@ -255,8 +270,8 @@ gmButton.addEventListener("click", async () => {
     }
 
     gmMessage("FROGINAL DOGS ownership confirmed. Checking the official drop and its supported mint flow…");
-    const drop = await gm.v1.collection(GM_CONFIG.collectionId);
-    const mintUrl = drop?.capabilities?.mintUrl || GM_CONFIG.mintUrl;
+    const drop = await gm.v1.collection(BADGE_MINT_CONFIG.collectionId);
+    const mintUrl = drop?.capabilities?.mintUrl || BADGE_MINT_CONFIG.mintUrl;
     if (drop?.capabilities?.supportedBySurface !== true) {
       gmMessage("This drop requires a mint mechanic that this embedded integration does not support. Opening the official GraveMint mint page instead.", "info");
       window.open(mintUrl, "_blank", "noopener,noreferrer");
@@ -276,7 +291,7 @@ gmButton.addEventListener("click", async () => {
     }
 
     gmMessage("Checking wallet eligibility…");
-    const verdict = await gm.v1.eligibility(drop.collection.id || GM_CONFIG.collectionId, phase.id, walletAddress);
+    const verdict = await gm.v1.eligibility(drop.collection.id || BADGE_MINT_CONFIG.collectionId, phase.id, walletAddress);
     if (verdict?.meetsRequirements !== true) {
       gmMessage(verdict?.message || "GraveMint says this wallet does not meet the current mint requirements. No transaction was submitted.", "error");
       return;
@@ -305,7 +320,7 @@ gmButton.addEventListener("click", async () => {
 
     gmMessage("Preparing a mint with GraveMint. Review the wallet signing request carefully…");
     const result = await gm.mint.mint({
-      collectionId: drop.collection.id || GM_CONFIG.collectionId,
+      collectionId: drop.collection.id || BADGE_MINT_CONFIG.collectionId,
       phaseId: phase.id,
       quantity: 1,
       walletAddress,
