@@ -55,7 +55,7 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
 <body>
 <header><a class="brand" href="https://froginals-nu.vercel.app/" aria-label="FROGINALS home"><img src="https://raw.githubusercontent.com/Obideft/froginals/main/images/Log01.png" alt="FROGINALS logo"></a><nav><button class="navbtn active" data-view="spin">🎡 Spin</button><button class="navbtn" data-view="inventory">🎒 Inventory</button><button class="navbtn" data-view="collection">🗂 Collection</button></nav><div class="wallet-profile" id="walletProfile" aria-live="polite"><img class="wallet-avatar" id="walletAvatar" src="https://raw.githubusercontent.com/Obideft/froginals/main/images/Log01.png" alt="FROGINALS profile avatar"><span class="wallet-copy"><span class="wallet-label">FROGINAL HOLDER · PHANTOM</span><span class="wallet-name" id="walletName">Checking your NFT…</span><span class="wallet-address" id="walletAddress">Checking wallet connection…</span></span></div></header>
 <main>
-<section class="hero"><div class="eyebrow">/// RECRUIT REWARD PROTOCOL ///</div><h1>SWAMP SPIN</h1><p>One spin. One recruitment badge. Choose your place in the FROGINALS army.</p></section>
+<section class="hero"><div class="eyebrow">/// RECRUIT REWARD PROTOCOL ///</div><h1>SWAMP SPIN</h1><p>Unlimited test spins. Collect recruitment badges and test the FROGINALS reward flow.</p></section>
 <section class="view active" id="spin">
 <div class="layout">
 <div class="panel"><h2 class="panel-title">YOUR BADGE IS LOADING...</h2><div class="wheel-wrap"><div class="pointer"></div><canvas id="wheel" width="700" height="700" aria-label="Prize wheel with Gold, Silver, and Wood FROGINALS badge tiers"></canvas></div><button class="spinbtn" id="spinBtn">▶ SPIN FOR YOUR BADGE</button><p class="note" id="spinNote">One welcome badge spin per browser (prototype).</p></div>
@@ -71,7 +71,7 @@ main{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:clam
     <button class="gm-btn" id="gmMintBtn" type="button">CONNECT WALLET & MINT</button>
     <button class="gm-btn secondary" id="gmDropBtn" type="button">VIEW OFFICIAL DROP ↗</button>
   </div>
-  <div class="gm-status" id="gmStatus" role="status" aria-live="polite">Minting is not configured yet. Add your publishable GraveMint key in the configuration below, and ensure this site's exact origin is allow-listed by GraveMint.</div>
+  <div class="gm-status" id="gmStatus" role="status" aria-live="polite">Minting is not configured yet. The hosted GraveMint drop is available. Embedded minting still needs a scoped publishable key and this site origin allow-listed by GraveMint.</div>
   <p class="gm-small">This uses GraveMint's supported mint API where the drop supports partner minting. If the drop uses an unsupported mint mechanic, this panel will send you to the official GraveMint mint page instead. Never put a gm_live_ secret key in this website.</p>
 </section>
 <div class="footer">BUILT FOR THE <b>FROGINALS</b> COMMUNITY · PROTOTYPE v0.1</div>
@@ -172,8 +172,8 @@ function card(r,locked=false){
 }
 function render(){
  const s=getState(),btn=document.getElementById('spinBtn'),note=document.getElementById('spinNote');
- btn.disabled=s.used||isSpinning;btn.textContent=s.used?'✓ WELCOME BADGE CLAIMED':'▶ SPIN FOR YOUR BADGE';
- note.textContent=s.used?'Your welcome badge spin has been used in this browser.':'One welcome spin. Every one of the 50 badge designs has an equal 2% chance.';
+ btn.disabled=isSpinning;btn.textContent=isSpinning?'SPINNING…':'▶ SPIN FOR YOUR BADGE';
+ note.textContent='Unlimited test spins are enabled. Every one of the 50 badge designs has an equal 2% chance per spin.';
  const counts={};s.inventory.forEach(id=>counts[id]=(counts[id]||0)+1);
  document.getElementById('inventoryGrid').innerHTML=s.inventory.length?s.inventory.map(id=>{const r=badges.find(x=>x.id===id);return r?card(r,false):''}).join(''):'<p class="status">Your inventory is empty. Claim your welcome spin to unlock your first FROGINALS badge.</p>';
  document.getElementById('inventoryStatus').textContent='Badges claimed: '+s.inventory.length+' · Duplicate badge rewards are allowed in this prototype.';
@@ -182,14 +182,14 @@ function render(){
 function showView(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.view===id));if(id==='inventory'||id==='collection')render()}
 document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
 document.getElementById('spinBtn').addEventListener('click',()=>{
- const s=getState();if(s.used||isSpinning)return;
+ const s=getState();if(isSpinning)return;
  isSpinning=true;render();
  // Demo-only selection. Production must select and persist the result on a trusted server.
  const reward=chooseReward();const selectedTier=tierConfig.find(t=>t.id===reward.tier);const start=tierConfig.slice(0,tierConfig.indexOf(selectedTier)).reduce((sum,t)=>sum+t.odds,0);const targetPct=start+selectedTier.odds/2;
  const targetAngle=360-(targetPct*3.6);const current=(Number(wheel.dataset.rotation)||0)%360;const extra=360*6+((targetAngle-current+360)%360);const rotation=(Number(wheel.dataset.rotation)||0)+extra;
  wheel.style.transform='rotate('+rotation+'deg)';wheel.dataset.rotation=rotation;
  setTimeout(()=>{
-  const fresh=getState();fresh.used=true;fresh.inventory.push(reward.id);saveState(fresh);isSpinning=false;render();
+  const fresh=getState();fresh.used=false;fresh.inventory.push(reward.id);saveState(fresh);isSpinning=false;render();
   document.getElementById('resultEmoji').textContent=reward.emoji;document.getElementById('resultTitle').textContent=reward.name;document.getElementById('resultDesc').textContent=reward.desc+' Drop rate: '+reward.odds+'%. This is a local prototype reward.';
   document.getElementById('resultModal').classList.add('show');
  },5400);
@@ -219,7 +219,7 @@ gmDropButton.addEventListener("click", () => window.open(GM_CONFIG.mintUrl, "_bl
 gmButton.addEventListener("click", async () => {
   if (gmBusy) return;
   if (!GM_CONFIG.apiKey || GM_CONFIG.apiKey === "PASTE_GM_PUB_KEY_HERE" || !GM_CONFIG.apiKey.startsWith("gm_pub_")) {
-    gmMessage("Configuration needed: paste your publishable gm_pub_ key into GM_CONFIG in index.html. Do not use a gm_live_ secret key in browser code.", "error");
+    gmMessage("Configuration needed: paste your publishable gm_pub_ key into GM_CONFIG in swamp-spin.html. Do not use a gm_live_ secret key in browser code.", "error");
     return;
   }
   const provider = window.phantom?.solana || window.solana;
