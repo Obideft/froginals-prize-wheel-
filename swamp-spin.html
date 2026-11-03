@@ -277,10 +277,31 @@ gmButton.addEventListener("click", async () => {
 
     gmMessage("Checking wallet eligibility…");
     const verdict = await gm.v1.eligibility(drop.collection.id || GM_CONFIG.collectionId, phase.id, walletAddress);
-    if (verdict?.eligible === false || verdict?.isEligible === false) {
-      gmMessage("GraveMint says this wallet is not eligible for the current mint phase. No transaction was submitted.", "error");
+    if (verdict?.meetsRequirements !== true) {
+      gmMessage(verdict?.message || "GraveMint says this wallet does not meet the current mint requirements. No transaction was submitted.", "error");
       return;
     }
+    if (verdict?.phase?.hasStarted === false || verdict?.phase?.hasEnded === true) {
+      gmMessage("The mint phase is not currently open for this wallet. No transaction was submitted.", "error");
+      return;
+    }
+
+    // GraveMint's signer contract uses base64 in/out. Phantom signs a
+    // VersionedTransaction object, so adapt the formats explicitly.
+    const { VersionedTransaction } = await import("https://esm.sh/@solana/web3.js@1.98.4");
+    const signer = {
+      async signTransaction(base64Transaction) {
+        const raw = Uint8Array.from(atob(base64Transaction), character => character.charCodeAt(0));
+        const transaction = VersionedTransaction.deserialize(raw);
+        const signed = await provider.signTransaction(transaction);
+        const signedBytes = signed.serialize();
+        let binary = "";
+        for (let offset = 0; offset < signedBytes.length; offset += 0x8000) {
+          binary += String.fromCharCode(...signedBytes.subarray(offset, offset + 0x8000));
+        }
+        return btoa(binary);
+      }
+    };
 
     gmMessage("Preparing a mint with GraveMint. Review the wallet signing request carefully…");
     const result = await gm.mint.mint({
@@ -288,7 +309,7 @@ gmButton.addEventListener("click", async () => {
       phaseId: phase.id,
       quantity: 1,
       walletAddress,
-      signer: provider,
+      signer,
       walletProvider: provider.isPhantom ? "Phantom" : "Solana wallet"
     });
     gmMessage("GraveMint returned a completed mint response. Check your wallet and the official drop activity to verify the NFT. If the wallet did not show a confirmed transaction, do not retry immediately.", "success");
